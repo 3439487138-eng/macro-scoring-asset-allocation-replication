@@ -1,0 +1,149 @@
+{
+  "status": "legacy_unverified",
+  "files": [
+    {
+      "path": "mutiple_assets.ipynb",
+      "sha256": "e04d95d56c4278907869f57b2e66fbd3cb8d0b6c30e4bb875c0d69bf1fe0b427",
+      "bytes": 2058749,
+      "status": "legacy_unverified",
+      "purpose": "research source with unverified embedded outputs",
+      "production_read_allowed": false
+    },
+    {
+      "path": "single_assets.ipynb",
+      "sha256": "03a7ece9ed7023c3239ce09d51ff7f828d6423d6b10627af990f85d90df93006",
+      "bytes": 1948020,
+      "status": "legacy_unverified",
+      "purpose": "research source with unverified embedded outputs",
+      "production_read_allowed": false
+    },
+    {
+      "path": "Macro Independent China/Independent_Review_China_edited.ipynb",
+      "sha256": "7c7a2dd948f45ecf3a026520b4e157cae4d94f4cf4645c789927e5a7e99beb25",
+      "bytes": 1661718,
+      "status": "legacy_unverified",
+      "purpose": "research source with unverified embedded outputs",
+      "production_read_allowed": false
+    },
+    {
+      "path": "Trend to Return.xlsx",
+      "sha256": "d11199808bcae3da912a3ac698176f9052c367281d404b3194b0e5fb407f29d3",
+      "bytes": 43668,
+      "status": "legacy_unverified",
+      "purpose": "historical spreadsheet result",
+      "production_read_allowed": false
+    },
+    {
+      "path": "Trend to Return_adjustposition.xlsx",
+      "sha256": "0ff932bd410ed8abc95f88f41c60495790c1577670908b342a4e50de059d4c76",
+      "bytes": 43624,
+      "status": "legacy_unverified",
+      "purpose": "historical spreadsheet result",
+      "production_read_allowed": false
+    },
+    {
+      "path": "all_signal.csv",
+      "sha256": "6233d1d66fb71c060268607ac5f9bebba8e2b82bf77f81074d04a81af4d089aa",
+      "bytes": 10199,
+      "status": "legacy_unverified",
+      "purpose": "historical derived result",
+      "production_read_allowed": false
+    },
+    {
+      "path": "annual_statistics.csv",
+      "sha256": "5e07778af9f1afa6c181813b3f14b208513b33f9c0a2267084a1b082918d811d",
+      "bytes": 1548,
+      "status": "legacy_unverified",
+      "purpose": "historical derived result",
+      "production_read_allowed": false
+    },
+    {
+      "path": "asset_positions.csv",
+      "sha256": "a206b85d78134aee09340ce80c3d243987a8d9ed69bc847071edf57357515e40",
+      "bytes": 17888,
+      "status": "legacy_unverified",
+      "purpose": "historical derived result",
+      "production_read_allowed": false
+    },
+    {
+      "path": "asset_strategies.csv",
+      "sha256": "04fd397e6a4186c333dab7f15ba041f9f79bffa488e205d3be7d976164ddfbb4",
+      "bytes": 16908,
+      "status": "legacy_unverified",
+      "purpose": "historical derived result",
+      "production_read_allowed": false
+    },
+    {
+      "path": "df_pos.csv",
+      "sha256": "32f702fed4aae17108fce8c6f6dac59b1589dc02ed9bbc74b3f5bece02d1c1d7",
+      "bytes": 7717,
+      "status": "legacy_unverified",
+      "purpose": "historical derived result",
+      "production_read_allowed": false
+    },
+    {
+      "path": "dom_credit_factor.csv",
+      "sha256": "c1f140fe96b484b36cc6e1334e7d60dd499bbefb1742eff6e086447f3cac49d3",
+      "bytes": 6306,
+      "status": "legacy_unverified",
+      "purpose": "historical derived result",
+      "production_read_allowed": false
+    },
+    {
+      "path": "dom_econ_factor.csv",
+      "sha256": "d88c6a7134b1d982c6113d2d410273764cbacfda37e4f9add1a776dbe87142e9",
+      "bytes": 6347,
+      "status": "legacy_unverified",
+      "purpose": "historical derived result",
+      "production_read_allowed": false
+    },
+    {
+      "path": "dom_econ_factor_trend.csv",
+      "sha256": "d83ad4bc65577167c0e1a182c48a84731d561c8d9ae93cfb1527c5eeb79a1576",
+      "bytes": 12759,
+      "status": "legacy_unverified",
+      "purpose": "historical derived result",
+      "production_read_allowed": false
+    },
+    {
+      "path": "dom_econ_factor_with_benchmark.csv",
+      "sha256": "de1d760e1d0835f4172236c0de2657c6acb12e258f5004513625986a15402e28",
+      "bytes": 148,
+      "status": "legacy_unverified",
+      "purpose": "historical derived result",
+      "production_read_allowed": false
+    },
+    {
+      "path": "monthly_data.csv",
+      "sha256": "71842ba52a1435726b4299ee28e74632ffc3e89c339eff92d0e80831b77fd667",
+      "bytes": 21205,
+      "status": "legacy_unverified",
+      "purpose": "historical derived result",
+      "production_read_allowed": false
+    },
+    {
+      "path": "portfolio_strategy.csv",
+      "sha256": "cce4cee3605022f4d99a3bd24b6d9b08af8622db15d55a9478eb5e68444e8e76",
+      "bytes": 5803,
+      "status": "legacy_unverified",
+      "purpose": "historical derived result",
+      "production_read_allowed": false
+    },
+    {
+      "path": "multi_asset_performance.png",
+      "sha256": "022f39dcac7741c157eadff3059a166c9499d1d6ac884f6e06c0418c09757b62",
+      "bytes": 583246,
+      "status": "legacy_unverified",
+      "purpose": "historical figure",
+      "production_read_allowed": false
+    },
+    {
+      "path": "em_eq_fut.pkl",
+      "sha256": "882824bca0bb1c434423b9d606b83814c59cac55877a2d0274e199cef58c4b3c",
+      "bytes": 586539,
+      "status": "legacy_unverified",
+      "purpose": "unused unsafe binary; not deserialized",
+      "production_read_allowed": false
+    }
+  ]
+}

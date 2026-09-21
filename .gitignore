@@ -1,0 +1,81 @@
+# Local Python environments and caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Secrets and local overrides
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+
+# Notebook/editor/system artifacts
+.ipynb_checkpoints/
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+.WeDrive
+*.log
+*.tmp
+*.temp
+~$*
+
+# Unsafe/unapproved binary data
+*.pkl
+*.pickle
+*.db
+*.sqlite
+*.sqlite3
+
+# License-unconfirmed source data retained locally only
+/China Rolled Return.csv
+/China Rolled Return2.csv
+/china-data.csv
+/data_indicator_review.csv
+/data/raw/*
+!/data/raw/README.md
+
+# Original research notebooks are retained locally. Only sanitized copies under
+# notebooks/legacy are upload candidates.
+/*.ipynb
+/Macro Independent China/
+
+# Legacy/unverified results are local evidence, never production inputs.
+/all_signal.csv
+/annual_statistics.csv
+/asset_positions.csv
+/asset_strategies.csv
+/df_pos.csv
+/dom_credit_factor.csv
+/dom_econ_factor.csv
+/dom_econ_factor_trend.csv
+/dom_econ_factor_with_benchmark.csv
+/monthly_data.csv
+/portfolio_strategy.csv
+/multi_asset_performance.png
+/Trend to Return.xlsx
+/Trend to Return_adjustposition.xlsx
+
+# Derived caches and run scratch space
+/data/processed/*
+!/data/processed/.gitkeep
+/outputs/*
+!/outputs/.gitkeep
+!/outputs/report.json
+!/outputs/report.html
+!/outputs/metrics.csv
+!/outputs/nav.csv
+!/outputs/positions.csv
+!/outputs/factor_signals.csv
+!/outputs/run_manifest.json
+!/outputs/equity_curve.png
+

@@ -1,0 +1,84 @@
+{
+  "status": "license_unconfirmed",
+  "files": [
+    {
+      "path": "China Rolled Return.csv",
+      "sha256": "18deccb6f7de2fc27b85c29339e6fac26f242617dd3c6e6bb2a6c65bb8a97961",
+      "bytes": 175557,
+      "rows": 4002,
+      "columns": [
+        "date",
+        "CSI800",
+        "1Oyear_bond",
+        "PPP500",
+        "SGE_gold",
+        "oil",
+        "short_financing"
+      ],
+      "coverage": {
+        "date_field": "date",
+        "valid_dates": 4002,
+        "start": "2010-01-04",
+        "end": "2024-12-31"
+      },
+      "source": "user-supplied local file; original provider unconfirmed",
+      "license_status": "unconfirmed_do_not_upload"
+    },
+    {
+      "path": "China Rolled Return2.csv",
+      "sha256": "7eaf1b51fa11da97b6d56f3773dec03e97b7865670600ab825c3fd6704d141a2",
+      "bytes": 103614,
+      "rows": 4859,
+      "columns": [
+        "date",
+        "China"
+      ],
+      "coverage": {
+        "date_field": "date",
+        "valid_dates": 4859,
+        "start": "2004-12-31",
+        "end": "2024-12-31"
+      },
+      "source": "user-supplied local file; original provider unconfirmed",
+      "license_status": "unconfirmed_do_not_upload"
+    },
+    {
+      "path": "china-data.csv",
+      "sha256": "2859a995a1cb5faef0922049d832a019d73031849d213e0ad42239de58cbf869",
+      "bytes": 2285609,
+      "rows": 63365,
+      "columns": [
+        "release_date",
+        "indicator",
+        "value"
+      ],
+      "coverage": {
+        "date_field": "release_date",
+        "valid_dates": 63365,
+        "start": "2004-01-02",
+        "end": "2025-09-30"
+      },
+      "source": "user-supplied local file; original provider unconfirmed",
+      "license_status": "unconfirmed_do_not_upload"
+    },
+    {
+      "path": "data_indicator_review.csv",
+      "sha256": "24a76cf34e44da659029dec344834dc0ef7164a4531ff3d0eac51624e9fa7129",
+      "bytes": 635813,
+      "rows": 17020,
+      "columns": [
+        "release_date",
+        "indicator",
+        "value"
+      ],
+      "coverage": {
+        "date_field": "release_date",
+        "valid_dates": 17020,
+        "start": "2005-02-01",
+        "end": "2025-12-31"
+      },
+      "source": "user-supplied local file; original provider unconfirmed",
+      "license_status": "unconfirmed_do_not_upload"
+    }
+  ]
+}
