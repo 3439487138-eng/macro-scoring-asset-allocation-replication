@@ -10,19 +10,19 @@
 | backtest_start | 2018-01-31 |
 | backtest_end | 2026-08-31 |
 | observations | 104 |
-| cumulative_return | 0.11925125915447898 |
-| annualized_return | 0.013084081417063187 |
-| annualized_volatility | 0.038184493070779826 |
-| sharpe_ratio | 0.3426543176260105 |
-| max_drawdown | -0.07603987810260915 |
+| cumulative_return | 0.11925149312866035 |
+| annualized_return | 0.013084105853264916 |
+| annualized_volatility | 0.03818443363233444 |
+| sharpe_ratio | 0.34265549095863357 |
+| max_drawdown | -0.07603989029158165 |
 | monthly_win_rate | 0.5673076923076923 |
 | rebalance_count | 104 |
 | annualized_turnover | 2.99 |
 | total_transaction_cost | 0.02591333333333333 |
-| benchmark_cumulative_return | 0.9799514485856327 |
-| benchmark_annualized_return | 0.0820052551800945 |
-| excess_cumulative_return | -0.8607001894311537 |
-| excess_annualized_return | -0.06892117376303131 |
+| benchmark_cumulative_return | 0.9799513332411838 |
+| benchmark_annualized_return | 0.08200524790699637 |
+| excess_cumulative_return | -0.8606998401125234 |
+| excess_annualized_return | -0.06892114205373145 |
 
 ## 复现限制
 
