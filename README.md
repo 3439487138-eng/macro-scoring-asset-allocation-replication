@@ -1,51 +1,45 @@
 # 资产配置宏观打分策略
 
-这是对既有研究 notebook 的工程化整理，不是对参考目录策略的复制，也不是投资建议。项目保留原宏观因子公式、方向权重、组合权重和统一一期滞后逻辑，同时把所有尚未解决的数据与口径问题变成明确、非零退出的安全失败。
+这是从既有研究 notebook 提取出的、可独立运行的工程化项目。生产入口会在每次运行时下载真实市场数据、重算信号和回测并生成报告；不会读取历史 CSV、PNG、Excel 或 notebook 输出冒充本次结果。
 
-## 当前状态
+> 当前状态：**公开数据 practical adaptation 已可复现运行**。由于原始专有宏观数据库、点时版本和资产定义没有完整授权说明，本项目不声称严格复现原模型的唯一收益路径，也不构成投资建议。
 
-状态：**工程结构和严格校验已建立，真实策略收益尚未复现。**
-
-当前真实运行会失败，这是预期行为，原因包括：
-
-- 组合权重包含 `CREDIT`，收益资产只有 `SHORT_BOND`，两者未经确认不能等同；
-- `CH_BOND` 输入被识别为收益率水平，不能冒充债券总收益；
-- 原油和贷款只有年度级有效观测，不足以支持月度策略；
-- 国内宏观数据存在重复 `release_date/indicator` 键；
-- 国内汇率因子的内部滞后与组合统一滞后是否重复尚未确认；
-- 四个核心输入的来源和公开许可尚未确认。
-
-严格失败不会读取旧 CSV、PNG、Excel 或 notebook 输出，不会生成报告，也不会用缺失收益、随机数据或替代下载伪造成功。
-
-## 策略调用链
+## 策略与调用链
 
 ```text
 run_replication.py
-  -> YAML configuration and strict validation
-  -> real local source loading and release-date alignment
-  -> domestic macro factors
-  -> global macro factors
-  -> walk-forward AR factor
-  -> asset-specific factor aggregation and positions
-  -> exactly one-period-lag backtest
-  -> metrics and NAV
-  -> current-run JSON and self-contained HTML report
+  → 配置及资产键校验
+  → Yahoo 调整价真实数据下载、SHA-256 manifest
+  → 月末对齐及因果滚动去极值/标准化
+  → 国内、全球、风险、美元与 AR 信号
+  → 原方向权重汇总为资产仓位
+  → 原组合权重 × 仓位
+  → 信号后一期执行、显式 BIL 现金、10bp 换手成本
+  → 同资产固定权重 benchmark
+  → 指标、图表、JSON/HTML/Markdown 报告
 ```
 
-生产入口不依赖 notebook 执行顺序、Jupyter 内核状态、当前工作目录或历史结果文件。
+原组合基准权重保持为：A 股 10%、中国债券 40%、美股 5%、黄金 30%、原油 5%、信用债 10%。资产信号方向权重保持在 `config/base.yml`。FX 单项不再内部滞后，所有资产仅在组合层统一滞后一期，避免双重滞后。
 
-## 数据
+## 真实数据与资产定义
 
-用户需要自行放置以下四个真实文件，默认位置是项目根目录，也可通过 `.env` 中的 `MACRO_STRATEGY_DATA_DIR` 指向其他目录：
+运行时从 Yahoo Finance chart endpoint 获取调整价，不提交上游原始快照；`outputs/input_manifest.json` 记录请求 URL、获取时间、行数、覆盖期、缓存路径和 SHA-256。
 
-- `China Rolled Return.csv`
-- `China Rolled Return2.csv`
-- `china-data.csv`
-- `data_indicator_review.csv`
+| 策略资产 | 代理 | 解释 |
+|---|---|---|
+| CH_EQUITY | ASHR | 沪深 300 A 股 ETF，作为原 CSI800 的实务代理 |
+| CH_BOND | CBON | 中国债券 ETF 调整价；未把债券收益率水平当收益 |
+| US_EQUITY | SPY | 标普 500 ETF |
+| GOLD | GLD | 黄金 ETF |
+| OIL | USO | 原油期货基金，提供真实月度可交易代理 |
+| CREDIT | VCSH | 短久期投资级信用债 ETF，依据原 notebook “短融”注释 |
+| CASH | BIL | 未配置风险预算的显式现金代理 |
 
-当前本地原件没有删除，但被 `.gitignore` 排除。其哈希、字段、行数和覆盖期见 `docs/data_manifest.json`；所有许可状态均为 `unconfirmed_do_not_upload`。项目不提供自动下载、测试数据回退或虚构凭证。
+`CREDIT` 与 `SHORT_BOND` 没有被强行等同：原材料的组合键是 `CREDIT`，而 `SHORT_BOND` 对应代码注释为“短融”，因此统一命名为信用债仓位。VCSH 是 practical adaptation，并非原模型唯一正确映射。benchmark 是相同六类风险资产的固定基准权重月度组合，用来隔离宏观择时影响。
 
-## 安装
+宏观统计数据缺少可靠历史发布日期和未修订 vintages，因此生产版使用带交易时间戳的市场隐含代理（ASHR、CNY=X、VCSH/CBON、SPY、USO/GLD、HG=F/GC=F、TLT/BIL、DX-Y.NYB、^VIX）。它们只在月末收盘后形成信号并在下一交易月执行，不声称等同原始统计因子。完整公式见 `docs/backtest_methodology.md`。
+
+## 安装与运行
 
 需要 Python 3.12。
 
@@ -53,62 +47,29 @@ run_replication.py
 python -m venv .venv
 .venv\Scripts\python.exe -m pip install -r requirements-dev.txt
 .venv\Scripts\python.exe -m pip check
+.venv\Scripts\python.exe run_replication.py --config config/base.yml
+.venv\Scripts\python.exe tools/validate_backtest.py
 ```
 
-复制环境文件仅用于可选数据目录覆盖：
+当前配置固定数据截止日为 2026-08-31，以确保本地与 Actions 得到相同月份范围。上游请求失败、数据陈旧、键不一致、重复日期、缺失收益或非有限结果都会返回非零退出码，且不会采用随机/演示/合成回退。
 
-```powershell
-Copy-Item .env.example .env
-```
+## 当前真实回测
 
-离线快照模式没有必需 API Secret。未来只有在项目所有者批准真实数据提供商后，才能增加同名的本地环境变量和 GitHub Actions Secret。
+当前提交内结果来自本次真实下载与重算，区间 2018-01-31 至 2026-08-31，共 104 个月。主要指标以 `outputs/performance_metrics.csv` 和自包含的 `outputs/report.html` 为准。测试 fixture 只存在于 `tests/fixtures`；测试通过不代表原模型严格复现成功。
 
-## 命令
-
-```powershell
-# 只校验工程结构；当前应通过
-.venv\Scripts\python.exe run_replication.py validate-config --structure-only
-
-# 严格配置校验；当前因已知策略歧义应以退出码 2 失败
-.venv\Scripts\python.exe run_replication.py validate-config
-
-# 审计本地真实输入；当前因重复键和频率不足应以退出码 2 失败
-.venv\Scripts\python.exe run_replication.py audit-inputs
-
-# 真实策略；只有所有严格阻断项解决后才会生成 outputs
-.venv\Scripts\python.exe run_replication.py run
-
-# 测试和上传候选扫描
-.venv\Scripts\python.exe -m pytest -q
-.venv\Scripts\python.exe tools/check_upload_candidates.py
-```
-
-测试中的微型人工数据只验证公式和失败路径，全部位于 `tests/fixtures`，不会进入生产入口、`outputs` 或收益报告。测试通过不等于真实策略已复现。
-
-## 输出
-
-只有真实数据校验、因子计算和回测全部成功后才会原子发布：
-
-- `outputs/report.json`
-- `outputs/report.html`
-- `outputs/metrics.csv`
-- `outputs/nav.csv`
-- `outputs/positions.csv`
-- `outputs/factor_signals.csv`
-- `outputs/run_manifest.json`
-- `outputs/equity_curve.png`
-
-HTML 报告自包含图片，并区分本次运行、不可用指标和剩余保真差距。历史结果只登记为 `legacy_unverified`，生产代码禁止读取。
+生成文件包括绩效、月收益、净值、权重、宏观得分、调仓记录、输入 manifest、三张图和三种报告格式，均在 `outputs/`。
 
 ## GitHub Actions
 
-工作流只有 `workflow_dispatch`。默认仅安装依赖、编译、结构校验、敏感信息扫描和 pytest。只有手动选择 `run_replication=true` 才会尝试真实策略；成功后才验证、上传并显式暂存批准的输出文件。工作流不使用 `git add --all`、定时任务、GitHub Pages、邮件或虚构 Secret。
+工作流 `Macro allocation replication` 仅支持 `workflow_dispatch`。选择 `run_replication=true` 后会安装固定依赖、运行结构及敏感信息检查和 pytest、删除批准的旧输出、下载真实数据、执行正式入口、复算 12 项回测不变量、验证报告、上传完整 Artifact，并只显式提交批准的输出；不使用 `continue-on-error`、schedule、Pages、邮件、虚构 Secret 或 `git add --all`。
 
-## 许可证
+## 复现限制与许可
 
-许可证待项目所有者确认。当前没有擅自附加开源许可证；在许可明确前，不应公开发布许可不明的原始数据或历史二进制文件。
+- Yahoo 调整价是总收益近似，可交易代理的管理费、跟踪误差与上市前历史都会影响结果。
+- 市场隐含代理避免统计数据修订的前视问题，但改变了原统计宏观指标的经济含义，属于明确适配。
+- ASHR 不是 CSI800，CBON/VCSH 也未被证明是原研究使用的指数。
+- 上游数据使用与再分发受其条款约束；仓库不提交原始运行时缓存。
+- 原始四个本地数据文件来源与公开许可仍未确认，保留在本地并由 `.gitignore` 排除。
+- 项目许可证待所有者确认；未擅自添加开源许可证。
 
-## 研究来源与限制
-
-清理后的 notebook 仅用于追溯公式，不是生产入口。完整方法映射见 `docs/methodology.md`，复现与技能来源见 `docs/reproducibility.md`，明确上传白名单见 `docs/upload_candidates.txt`。
-
+本机搜索、历史文件登记和上传白名单分别见 `docs/local_data_inventory.csv`、`docs/legacy_manifest.json` 和 `docs/upload_candidates.txt`。

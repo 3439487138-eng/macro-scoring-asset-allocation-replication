@@ -7,7 +7,6 @@ import pytest
 
 from macro_allocation.config import (
     load_config,
-    runtime_configuration_errors,
     validate_structure,
 )
 
@@ -20,13 +19,12 @@ def test_base_config_structure_is_safe() -> None:
     assert validate_structure(config) == []
 
 
-def test_strict_config_detects_credit_short_bond_and_bond_semantics() -> None:
-    errors = runtime_configuration_errors(load_config(ROOT / "config/base.yml"))
-    combined = " ".join(errors)
-    assert "CREDIT" in combined
-    assert "SHORT_BOND" in combined
-    assert "yield level" in combined
-    assert "lag review is unresolved" in combined
+def test_credit_is_distinct_and_adjusted_price_based() -> None:
+    config = load_config(ROOT / "config/base.yml")
+    assert "CREDIT" in config["assets"]
+    assert "SHORT_BOND" not in config["assets"]
+    assert config["assets"]["CREDIT"]["symbol"] == "VCSH"
+    assert "adjusted_close" in config["assets"]["CH_BOND"]["return_semantics"]
 
 
 def test_prohibited_provider_is_rejected() -> None:
@@ -36,16 +34,16 @@ def test_prohibited_provider_is_rejected() -> None:
     assert any("prohibited" in error for error in validate_structure(unsafe))
 
 
-def test_absolute_input_path_is_rejected() -> None:
+def test_absolute_output_path_is_rejected() -> None:
     config = load_config(ROOT / "config/base.yml")
     unsafe = deepcopy(config)
-    unsafe["data"]["files"]["asset_levels"] = "C:" + "/private/data.csv"
+    unsafe["outputs"]["directory"] = "C:" + "/private/outputs"
     assert any("repository-relative" in error for error in validate_structure(unsafe))
 
 
 @pytest.mark.parametrize("marker", ["mock", "random", "demo", "synthetic"])
-def test_artificial_input_filename_is_rejected(marker: str) -> None:
+def test_artificial_provider_is_rejected(marker: str) -> None:
     config = load_config(ROOT / "config/base.yml")
     unsafe = deepcopy(config)
-    unsafe["data"]["files"]["asset_levels"] = f"{marker}_prices.csv"
-    assert any("prohibited production marker" in error for error in validate_structure(unsafe))
+    unsafe["data"]["provider"] = f"{marker}_prices"
+    assert validate_structure(unsafe)

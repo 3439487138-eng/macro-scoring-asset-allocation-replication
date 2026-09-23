@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Repository-independent command-line entrypoint for the strategy."""
+"""Run the real-data practical adaptation or validate its configuration."""
 
 from __future__ import annotations
 
@@ -14,39 +14,22 @@ if str(SRC) not in sys.path:
 
 from dotenv import load_dotenv
 
-from macro_allocation.config import (
-    load_config,
-    resolve_input_paths,
-    runtime_configuration_errors,
-    validate_structure,
-)
-from macro_allocation.data import load_sources
+from macro_allocation.config import load_config, require_valid_config
 from macro_allocation.errors import ProjectError
-from macro_allocation.pipeline import run_pipeline
-from macro_allocation.validation import audit_source_tables, assert_no_nested_git
-
-
-def _config_path(value: str) -> Path:
-    path = Path(value)
-    return path.resolve() if path.is_absolute() else (PROJECT_ROOT / path).resolve()
+from macro_allocation.production_pipeline import run_pipeline
+from macro_allocation.validation import assert_no_nested_git
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Validate or run the strict macro-scoring asset-allocation replication."
+        description="Run the real-data macro-scoring asset-allocation practical adaptation."
     )
-    common = argparse.ArgumentParser(add_help=False)
-    common.add_argument("--config", default="config/base.yml", help="repository-relative YAML config")
-    subparsers = parser.add_subparsers(dest="command", required=True)
-
-    validate = subparsers.add_parser("validate-config", parents=[common])
-    validate.add_argument(
-        "--structure-only",
+    parser.add_argument("--config", default="config/base.yml", help="repository-relative YAML config")
+    parser.add_argument(
+        "--validate-config",
         action="store_true",
-        help="validate schema and safety rules without resolving known strategy blockers",
+        help="validate configuration only; do not download data or run the backtest",
     )
-    subparsers.add_parser("audit-inputs", parents=[common])
-    subparsers.add_parser("run", parents=[common])
     return parser
 
 
@@ -55,30 +38,17 @@ def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     try:
         assert_no_nested_git(PROJECT_ROOT)
-        config_path = _config_path(args.config)
-        config = load_config(config_path)
-        if args.command == "validate-config":
-            errors = validate_structure(config)
-            if not args.structure_only:
-                errors = runtime_configuration_errors(config)
-            if errors:
-                print("ERROR: " + "; ".join(errors), file=sys.stderr)
-                return 2
+        config_path = Path(args.config)
+        if config_path.is_absolute() or ".." in config_path.parts:
+            raise ProjectError("configuration path must be repository-relative")
+        resolved = (PROJECT_ROOT / config_path).resolve()
+        config = load_config(resolved)
+        require_valid_config(config)
+        if args.validate_config:
             print("Configuration validation passed.")
             return 0
-
-        if args.command == "audit-inputs":
-            paths = resolve_input_paths(config, PROJECT_ROOT)
-            sources = load_sources(paths)
-            errors = audit_source_tables(sources, config)
-            if errors:
-                print("ERROR: " + "; ".join(errors), file=sys.stderr)
-                return 2
-            print("Input audit passed.")
-            return 0
-
-        published = run_pipeline(config, PROJECT_ROOT, config_path.relative_to(PROJECT_ROOT))
-        print("Replication completed from current real inputs.")
+        published = run_pipeline(config, PROJECT_ROOT, config_path)
+        print("Practical-adaptation backtest completed from current real provider observations.")
         for path in published:
             print(path.relative_to(PROJECT_ROOT).as_posix())
         return 0
@@ -88,11 +58,10 @@ def main(argv: list[str] | None = None) -> int:
     except KeyboardInterrupt:
         print("ERROR: interrupted", file=sys.stderr)
         return 130
-    except Exception as exc:  # Last-resort redaction: never leak paths or credentials.
+    except Exception as exc:
         print(f"ERROR: unexpected failure ({type(exc).__name__})", file=sys.stderr)
         return 1
 
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

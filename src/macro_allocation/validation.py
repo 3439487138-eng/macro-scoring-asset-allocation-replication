@@ -7,7 +7,7 @@ from typing import Any
 
 import pandas as pd
 
-from .config import runtime_configuration_errors
+from .config import validate_structure
 from .data import SourceTables, parse_dates
 from .errors import ConfigurationError, DataValidationError
 
@@ -16,7 +16,7 @@ PROHIBITED_SOURCE_WORDS = {"mock", "random", "demo", "synthetic", "placeholder",
 
 
 def require_valid_runtime_config(config: dict[str, Any]) -> None:
-    errors = runtime_configuration_errors(config)
+    errors = validate_structure(config)
     if errors:
         raise ConfigurationError("; ".join(errors))
 

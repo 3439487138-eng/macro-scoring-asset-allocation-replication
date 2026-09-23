@@ -11,6 +11,7 @@ from macro_allocation.factors.domestic import (
 )
 from macro_allocation.transforms import _check_loading_orientation
 from macro_allocation.validation import check_release_dates_not_after_signal
+from macro_allocation.practical_factors import causal_winsorized_zscore
 
 
 def test_domestic_expectation_mapping_formula() -> None:
@@ -40,3 +41,11 @@ def test_release_date_after_signal_is_lookahead() -> None:
             pd.Series(["2020-02-01"]), pd.Series(["2020-01-31"])
         )
 
+
+def test_future_change_does_not_alter_earlier_causal_score() -> None:
+    dates = pd.date_range("2010-01-31", periods=40, freq="ME")
+    original = pd.Series(np.linspace(1, 2, 40), index=dates)
+    changed = original.copy(); changed.iloc[-1] = 999
+    left = causal_winsorized_zscore(original, 24, 12, .05, .95)
+    right = causal_winsorized_zscore(changed, 24, 12, .05, .95)
+    pd.testing.assert_series_equal(left.iloc[:-1], right.iloc[:-1])

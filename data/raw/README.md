@@ -1,17 +1,5 @@
-# Raw data is intentionally not committed
+# 本地原始数据边界
 
-Place the following real, user-supplied files in the directory selected by
-`MACRO_STRATEGY_DATA_DIR`, or leave that variable blank to use the project root:
+原项目的 `China Rolled Return.csv`、`China Rolled Return2.csv`、`china-data.csv` 和 `data_indicator_review.csv` 来源、历史发布日期、修订状态与公开许可尚未确认，继续在本机保留并由 `.gitignore` 排除。生产入口不会读取它们。
 
-- `China Rolled Return.csv`
-- `China Rolled Return2.csv`
-- `china-data.csv`
-- `data_indicator_review.csv`
-
-Their current source, redistribution permission, and point-in-time provenance
-are unconfirmed. The local originals are preserved at the project root and are
-listed in `docs/data_manifest.json`, but `.gitignore` excludes them from upload.
-
-Production runs never download replacements and never fall back to sample,
-mock, random, synthetic, interpolated, or legacy result data.
-
+当前 practical adaptation 在运行时从配置声明的 Yahoo chart endpoint 下载调整价；缓存位于 `data/processed/` 且不提交。仓库不包含随机、mock、demo 或 synthetic 生产回退。

@@ -1,0 +1,245 @@
+{
+  "paper": {
+    "title": "资产配置宏观打分策略（公开数据实务适配）",
+    "source": "existing project engineering extraction"
+  },
+  "run": {
+    "status": "adapted",
+    "mode": "practical_adaptation",
+    "sample": "2018-01-31 to 2026-08-31",
+    "generated_at": "2026-09-23T11:54:10.355383+00:00",
+    "commit_sha": "5648993bad478f32681cf35ad53603a950d6a12b",
+    "command": "python run_replication.py --config config/base.yml",
+    "config": "config/base.yml"
+  },
+  "summary": "本报告由当前运行的真实市场数据重新计算；它是原策略思想的 practical adaptation，不是原始专有宏观数据库的严格复现。",
+  "metrics": {
+    "data_cutoff_date": "2026-08-31",
+    "backtest_start": "2018-01-31",
+    "backtest_end": "2026-08-31",
+    "observations": 104,
+    "cumulative_return": 0.11925125915447898,
+    "annualized_return": 0.013084081417063187,
+    "annualized_volatility": 0.038184493070779826,
+    "sharpe_ratio": 0.3426543176260105,
+    "max_drawdown": -0.07603987810260915,
+    "monthly_win_rate": 0.5673076923076923,
+    "rebalance_count": 104,
+    "annualized_turnover": 2.99,
+    "total_transaction_cost": 0.02591333333333333,
+    "benchmark_cumulative_return": 0.9799514485856327,
+    "benchmark_annualized_return": 0.0820052551800945,
+    "excess_cumulative_return": -0.8607001894311537,
+    "excess_annualized_return": -0.06892117376303131
+  },
+  "assets": [
+    {
+      "asset": "CH_EQUITY",
+      "symbol": "ASHR",
+      "role": "CSI 800 practical proxy"
+    },
+    {
+      "asset": "CH_BOND",
+      "symbol": "CBON",
+      "role": "China government/policy bond practical proxy"
+    },
+    {
+      "asset": "US_EQUITY",
+      "symbol": "SPY",
+      "role": "US equity"
+    },
+    {
+      "asset": "GOLD",
+      "symbol": "GLD",
+      "role": "gold"
+    },
+    {
+      "asset": "OIL",
+      "symbol": "USO",
+      "role": "crude-oil futures practical proxy"
+    },
+    {
+      "asset": "CREDIT",
+      "symbol": "VCSH",
+      "role": "short-financing / short-duration investment-grade credit proxy"
+    }
+  ],
+  "inputs": [
+    {
+      "symbol": "ASHR",
+      "source": "Yahoo Finance chart endpoint",
+      "request_url": "https://query1.finance.yahoo.com/v8/finance/chart/ASHR?period1=1356998400&period2=1788220800&interval=1d&events=div%2Csplits",
+      "retrieved_at": "2026-09-23T11:54:09.693896+00:00",
+      "path": "data/processed/ASHR.csv",
+      "sha256": "c90bb4ad4779feae3f40666d8803354abd7a57f5e908f1b271ee25455f68d05a",
+      "rows": 3222,
+      "valid_adjusted_close": 3222,
+      "start": "2013-11-06",
+      "end": "2026-08-31",
+      "redistribution": "raw data not committed; runtime access only"
+    },
+    {
+      "symbol": "BIL",
+      "source": "Yahoo Finance chart endpoint",
+      "request_url": "https://query1.finance.yahoo.com/v8/finance/chart/BIL?period1=1356998400&period2=1788220800&interval=1d&events=div%2Csplits",
+      "retrieved_at": "2026-09-23T11:54:09.693896+00:00",
+      "path": "data/processed/BIL.csv",
+      "sha256": "ce9dafae42871cd3568cb2d72e82c7b48b06a26c41270e802f0139cf05480e2f",
+      "rows": 3436,
+      "valid_adjusted_close": 3436,
+      "start": "2013-01-02",
+      "end": "2026-08-31",
+      "redistribution": "raw data not committed; runtime access only"
+    },
+    {
+      "symbol": "CBON",
+      "source": "Yahoo Finance chart endpoint",
+      "request_url": "https://query1.finance.yahoo.com/v8/finance/chart/CBON?period1=1356998400&period2=1788220800&interval=1d&events=div%2Csplits",
+      "retrieved_at": "2026-09-23T11:54:09.693896+00:00",
+      "path": "data/processed/CBON.csv",
+      "sha256": "6c4a7548c01e962912b12832fba310757a62f58fbaea0211dc3a3127bbae0a93",
+      "rows": 2967,
+      "valid_adjusted_close": 2967,
+      "start": "2014-11-11",
+      "end": "2026-08-31",
+      "redistribution": "raw data not committed; runtime access only"
+    },
+    {
+      "symbol": "CNY=X",
+      "source": "Yahoo Finance chart endpoint",
+      "request_url": "https://query1.finance.yahoo.com/v8/finance/chart/CNY%3DX?period1=1356998400&period2=1788220800&interval=1d&events=div%2Csplits",
+      "retrieved_at": "2026-09-23T11:54:09.693896+00:00",
+      "path": "data/processed/CNY_X.csv",
+      "sha256": "988c4431657f374b54d714aa9325d95e988b038ec47622dc6d2e1366424ef3de",
+      "rows": 3566,
+      "valid_adjusted_close": 3556,
+      "start": "2013-01-01",
+      "end": "2026-08-31",
+      "redistribution": "raw data not committed; runtime access only"
+    },
+    {
+      "symbol": "DX-Y.NYB",
+      "source": "Yahoo Finance chart endpoint",
+      "request_url": "https://query1.finance.yahoo.com/v8/finance/chart/DX-Y.NYB?period1=1356998400&period2=1788220800&interval=1d&events=div%2Csplits",
+      "retrieved_at": "2026-09-23T11:54:09.693896+00:00",
+      "path": "data/processed/DX-Y.NYB.csv",
+      "sha256": "8b2e071b856c1085d20e80cb3b1b179b4e686d703cc775cf7c5446608539ed18",
+      "rows": 4155,
+      "valid_adjusted_close": 3437,
+      "start": "2013-01-02",
+      "end": "2026-08-31",
+      "redistribution": "raw data not committed; runtime access only"
+    },
+    {
+      "symbol": "GC=F",
+      "source": "Yahoo Finance chart endpoint",
+      "request_url": "https://query1.finance.yahoo.com/v8/finance/chart/GC%3DF?period1=1356998400&period2=1788220800&interval=1d&events=div%2Csplits",
+      "retrieved_at": "2026-09-23T11:54:09.693896+00:00",
+      "path": "data/processed/GC_F.csv",
+      "sha256": "c40039b34fc9181ca260def15209c97e5f1e553a8d901db0a3ff14245cbb75d8",
+      "rows": 3442,
+      "valid_adjusted_close": 3436,
+      "start": "2013-01-02",
+      "end": "2026-08-31",
+      "redistribution": "raw data not committed; runtime access only"
+    },
+    {
+      "symbol": "GLD",
+      "source": "Yahoo Finance chart endpoint",
+      "request_url": "https://query1.finance.yahoo.com/v8/finance/chart/GLD?period1=1356998400&period2=1788220800&interval=1d&events=div%2Csplits",
+      "retrieved_at": "2026-09-23T11:54:09.693896+00:00",
+      "path": "data/processed/GLD.csv",
+      "sha256": "673d60df18a9350231cf1abac412bd5137cd6b99f1bc823cf498e31833373ee4",
+      "rows": 3436,
+      "valid_adjusted_close": 3436,
+      "start": "2013-01-02",
+      "end": "2026-08-31",
+      "redistribution": "raw data not committed; runtime access only"
+    },
+    {
+      "symbol": "HG=F",
+      "source": "Yahoo Finance chart endpoint",
+      "request_url": "https://query1.finance.yahoo.com/v8/finance/chart/HG%3DF?period1=1356998400&period2=1788220800&interval=1d&events=div%2Csplits",
+      "retrieved_at": "2026-09-23T11:54:09.693896+00:00",
+      "path": "data/processed/HG_F.csv",
+      "sha256": "02c0d5c90fd583e2f6684d5320860a5efba6df9c46e8dd0ece7f69cf1d84fb20",
+      "rows": 3442,
+      "valid_adjusted_close": 3436,
+      "start": "2013-01-02",
+      "end": "2026-08-31",
+      "redistribution": "raw data not committed; runtime access only"
+    },
+    {
+      "symbol": "SPY",
+      "source": "Yahoo Finance chart endpoint",
+      "request_url": "https://query1.finance.yahoo.com/v8/finance/chart/SPY?period1=1356998400&period2=1788220800&interval=1d&events=div%2Csplits",
+      "retrieved_at": "2026-09-23T11:54:09.693896+00:00",
+      "path": "data/processed/SPY.csv",
+      "sha256": "b080ac1e2a5c79775e5f6508bd4021d90e5f036e54881dd74e513d57539129d2",
+      "rows": 3436,
+      "valid_adjusted_close": 3436,
+      "start": "2013-01-02",
+      "end": "2026-08-31",
+      "redistribution": "raw data not committed; runtime access only"
+    },
+    {
+      "symbol": "TLT",
+      "source": "Yahoo Finance chart endpoint",
+      "request_url": "https://query1.finance.yahoo.com/v8/finance/chart/TLT?period1=1356998400&period2=1788220800&interval=1d&events=div%2Csplits",
+      "retrieved_at": "2026-09-23T11:54:09.693896+00:00",
+      "path": "data/processed/TLT.csv",
+      "sha256": "ff8b7b9482a72fe9d7ce8cf4db5a7c5a5f8e15ed7006dd9abf1fdd8cc18193f9",
+      "rows": 3436,
+      "valid_adjusted_close": 3436,
+      "start": "2013-01-02",
+      "end": "2026-08-31",
+      "redistribution": "raw data not committed; runtime access only"
+    },
+    {
+      "symbol": "USO",
+      "source": "Yahoo Finance chart endpoint",
+      "request_url": "https://query1.finance.yahoo.com/v8/finance/chart/USO?period1=1356998400&period2=1788220800&interval=1d&events=div%2Csplits",
+      "retrieved_at": "2026-09-23T11:54:09.693896+00:00",
+      "path": "data/processed/USO.csv",
+      "sha256": "dbc106688709fb19afb3acccee688ef2cac6c4507f33b888fdb436a23bb1d374",
+      "rows": 3436,
+      "valid_adjusted_close": 3436,
+      "start": "2013-01-02",
+      "end": "2026-08-31",
+      "redistribution": "raw data not committed; runtime access only"
+    },
+    {
+      "symbol": "VCSH",
+      "source": "Yahoo Finance chart endpoint",
+      "request_url": "https://query1.finance.yahoo.com/v8/finance/chart/VCSH?period1=1356998400&period2=1788220800&interval=1d&events=div%2Csplits",
+      "retrieved_at": "2026-09-23T11:54:09.693896+00:00",
+      "path": "data/processed/VCSH.csv",
+      "sha256": "8dc95b2b322493b6ca77a520ed97053339dbe8aa8f5b4b5424901d3d7f8506c8",
+      "rows": 3436,
+      "valid_adjusted_close": 3436,
+      "start": "2013-01-02",
+      "end": "2026-08-31",
+      "redistribution": "raw data not committed; runtime access only"
+    },
+    {
+      "symbol": "^VIX",
+      "source": "Yahoo Finance chart endpoint",
+      "request_url": "https://query1.finance.yahoo.com/v8/finance/chart/%5EVIX?period1=1356998400&period2=1788220800&interval=1d&events=div%2Csplits",
+      "retrieved_at": "2026-09-23T11:54:09.693896+00:00",
+      "path": "data/processed/VIX.csv",
+      "sha256": "fb98d262ebd0dd3ff592d7aeb37e6eadf3fbb6bb98e29b0b056f344296099852",
+      "rows": 3564,
+      "valid_adjusted_close": 3437,
+      "start": "2013-01-02",
+      "end": "2026-08-31",
+      "redistribution": "raw data not committed; runtime access only"
+    }
+  ],
+  "limitations": [
+    "CREDIT 依据原注释‘短融’使用 VCSH；没有与 SHORT_BOND 或现金合并。",
+    "CBON、VCSH 等调整价是可交易代理，不等于原研究的唯一正确资产定义。",
+    "宏观输入改用带时间戳的市场隐含代理，因此不存在统计数据修订值，但不能代表原始统计宏观因子。",
+    "Yahoo 原始数据只在运行时获取且不随仓库再分发；上游可用性与条款可能变化。",
+    "测试通过只说明工程约束成立，不等于原策略收益得到严格复现。"
+  ]
+}

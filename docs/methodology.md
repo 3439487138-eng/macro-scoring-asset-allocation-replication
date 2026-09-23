@@ -1,25 +1,5 @@
-# Methodology mapping
+# 方法映射
 
-| Strategy component | Extracted implementation | Status / strict check |
-|---|---|---|
-| Monthly asset returns | Month-end level, `pct_change(fill_method=None)` | Oil frequency is unavailable; bond yield semantics invalid |
-| Domestic economy | PMI levels plus 12-month loan/property changes, seasonal adjustment, trailing smoothing, expanding PCA, direction of change | Annual loan data causes strict failure; no implicit fill |
-| Domestic currency | 1Y yield, reserve ratio and market operations; smoothed 12-month directions and six-month signal average | Duplicate macro keys and missing months fail |
-| Domestic credit | Rolling 12-month loan sum, 12-month change, expanding PCA direction | PCA sign changes fail rather than being silently corrected |
-| Domestic expectation | EWM trade expectation; level/delta regime mapping | Extracted from `single_assets.ipynb` unchanged |
-| Domestic FX | Three-month percent change, internally shifted one month, then signed | Extracted unchanged; double-lag review remains unresolved |
-| Domestic inflation | Seasonal/PCA factor change compared with lagged 36-month standard deviation | Missing source observations fail |
-| Global economy | US/China PMI, Korea exports, copper/gold, trailing smoothing, expanding PCA direction | No full-sample result fallback |
-| Global currency | Smoothed 1Y yield direction and Fed holdings rule | Persistent derived signal is an explicit state machine, not raw-data filling |
-| Global inflation | Expanding HP endpoint and EWM z-score regimes | Endpoint sensitivity documented |
-| Dollar cycle | Expanding HP endpoint and EWM z-score regimes | Endpoint sensitivity documented |
-| Financial risk | OFR FSI EWM z-score regimes | Release dates validated |
-| Autoregression | Walk-forward AutoReg(12), 36-month initial window, forecast sign | Model failure is fatal, not silently skipped |
-| Asset positions | Original per-asset factor directions normalized by absolute weights | Missing active factors fail |
-| Execution | Asset position shifted exactly one monthly period | Dedicated regression test |
-| Portfolio | Original fixed capital weights | `CREDIT`/`SHORT_BOND` mismatch is fatal |
-| Costs | Zero, matching the notebook's omission | Explicit assumption; no hidden cost model |
-| Benchmark | None specified | Reported as `unavailable` |
+生产实现与公式详见 [backtest_methodology.md](backtest_methodology.md)。本项目保留原 notebook 的资产方向权重、10/40/5/30/5/10 组合权重、AR(12) 扩展窗结构和统一一期滞后；统计宏观数据因来源、许可、发布日期和 vintage 均不能可靠确认，改为明确标记的市场隐含 `practical_adaptation`，没有复制老师参考项目的策略逻辑或结果。
 
-No strategy logic or result from `../32_宏观打分资产配置` is imported. The reference directory was used only to understand organizational conventions.
-
+关键适配包括：`CREDIT` 依据“短融”注释映射 VCSH，`CH_BOND` 使用 CBON 调整价，原油使用 USO，FX 内部滞后为 0 且组合层滞后为 1，benchmark 是同资产固定权重组合。所有偏离严格原模型之处都在 README 和本次报告中披露。

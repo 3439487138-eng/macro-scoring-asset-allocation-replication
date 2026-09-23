@@ -9,15 +9,7 @@ import sys
 from pathlib import Path
 
 
-SECTIONS = [
-    "Executive Summary",
-    "Headline Metrics",
-    "Figures and Result Tables",
-    "Methodology Mapping",
-    "Data and Assumptions",
-    "Fidelity Gaps and Limitations",
-    "Reproducibility",
-]
+SECTIONS = ["绩效", "资产映射", "图表", "方法与限制", "可复现性"]
 
 
 def main() -> int:
@@ -37,7 +29,7 @@ def main() -> int:
         print(f"ERROR: cannot read report ({type(exc).__name__})", file=sys.stderr)
         return 2
     missing = [section for section in SECTIONS if section not in document]
-    required = {"paper", "run", "summary", "metrics", "methodology", "assumptions", "fidelity_gaps"}
+    required = {"paper", "run", "summary", "metrics", "assets", "inputs", "limitations"}
     missing_keys = sorted(required - set(payload))
     if missing or missing_keys or "data:image/png;base64," not in document:
         print(
@@ -54,4 +46,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

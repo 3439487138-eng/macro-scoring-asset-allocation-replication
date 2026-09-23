@@ -48,6 +48,7 @@ Thumbs.db
 # notebooks/legacy are upload candidates.
 /*.ipynb
 /Macro Independent China/
+/docs/legacy_*_pre_*.md
 
 # Legacy/unverified results are local evidence, never production inputs.
 /all_signal.csv
@@ -66,16 +67,22 @@ Thumbs.db
 /Trend to Return_adjustposition.xlsx
 
 # Derived caches and run scratch space
+/data/cache/
 /data/processed/*
 !/data/processed/.gitkeep
 /outputs/*
 !/outputs/.gitkeep
+!/outputs/performance_metrics.csv
+!/outputs/monthly_returns.csv
+!/outputs/nav_curve.csv
+!/outputs/allocation_weights.csv
+!/outputs/asset_returns.csv
+!/outputs/macro_scores.csv
+!/outputs/rebalance_records.csv
+!/outputs/duplicate_records.csv
+!/outputs/input_manifest.json
+!/outputs/backtest_report.md
 !/outputs/report.json
 !/outputs/report.html
-!/outputs/metrics.csv
-!/outputs/nav.csv
-!/outputs/positions.csv
-!/outputs/factor_signals.csv
-!/outputs/run_manifest.json
-!/outputs/equity_curve.png
-
+!/outputs/figures/
+!/outputs/figures/*.png

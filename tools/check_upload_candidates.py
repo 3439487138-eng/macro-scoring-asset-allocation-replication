@@ -16,7 +16,7 @@ PROHIBITED_SUFFIXES = {".pkl", ".pickle", ".db", ".sqlite", ".sqlite3"}
 WINDOWS_BACKSLASH = "\\"
 PATTERNS = {
     "Windows absolute path": re.compile(
-        r"(?i)(?:[a-z]:" + re.escape(WINDOWS_BACKSLASH) + r"|[a-z]:/)"
+        r"(?i)(?<![a-z])(?:[a-z]:" + re.escape(WINDOWS_BACKSLASH) + r"|[a-z]:/)"
     ),
     "Unix home path": re.compile(r"/(?:home|Users)/[^/\s]+/"),
     "credential assignment": re.compile(

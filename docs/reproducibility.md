@@ -1,32 +1,10 @@
-# Reproducibility notes
+# 可复现说明
 
-## Boundaries
+- 正式命令：`python run_replication.py --config config/base.yml`。
+- 生产入口只读取当前运行下载并校验的真实 Yahoo 调整价，不读取 legacy 文件或测试 fixture。
+- `input_manifest.json` 保存每个输入的请求、覆盖期、行数和 SHA-256；原始缓存被 `.gitignore` 排除。
+- 数据截止日固定为 2026-08-31，保证本地和 GitHub Actions 使用相同完整月份。
+- `tools/validate_backtest.py` 独立复算时点、发布可用日、权重、持仓收益、成本、净值、回撤、有限值、benchmark 对齐和末期日期。
+- GitHub Actions 只手动触发；完整运行成功后上传 Artifact 并显式提交批准的派生输出。
 
-- Production reads only the four configured real source files.
-- Existing CSV, PNG, XLSX, pickle, and notebook outputs are `legacy_unverified`.
-- Tests use isolated micro fixtures and cannot satisfy a production run.
-- Report generation is downstream of validation and a real backtest; failures publish nothing.
-
-## Paper Replicator skill
-
-- Source: local `paper-replicator` skill supplied by the execution environment.
-- Git revision: unavailable at audit time.
-- `SKILL.md` SHA256: `A086CE12A88874C66B1CE006169B343F2151552001B8B1E3BFB5E446CEA6260F`.
-
-## Verification required before claiming reproduction
-
-1. Resolve `CREDIT` versus `SHORT_BOND` without inference.
-2. Supply monthly real oil and loan observations, or approve a separately labelled reduced-scope adaptation.
-3. Replace or formally approve the bond return input semantics.
-4. Resolve duplicate macro keys using source-defined economic aggregation.
-5. Confirm the domestic FX lag interpretation.
-6. Confirm data provenance and redistribution rights.
-7. Run from an isolated checkout without legacy outputs and inspect the generated report.
-8. Manually dispatch GitHub Actions and verify its artifact and same-branch commit.
-
-Until all applicable items are complete, the correct status is **reproduction incomplete**.
-
-One possible owner-approved amendment is to declare an explicit
-`CREDIT = SHORT_BOND` alias in configuration, with its evidence and approval
-recorded in the run manifest. It is not the default, is not implemented now,
-and must not be described as cash or as an unchanged original replication.
+当前结果是公开数据实务适配，不是原专有数据库的严格收益复现。上游网络或 schema 变化会让运行明确失败，不会调用缓存旧结果或人工数据回退。

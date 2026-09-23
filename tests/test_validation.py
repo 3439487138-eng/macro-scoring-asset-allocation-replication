@@ -39,7 +39,9 @@ def test_oil_and_loan_frequency_are_fatal() -> None:
         domestic_macro=pd.read_csv(FIXTURES / "frequency_domestic_macro.csv"),
         global_macro=pd.read_csv(FIXTURES / "frequency_global_macro.csv"),
     )
-    errors = audit_source_tables(sources, load_config(Path(__file__).parents[1] / "config/base.yml"))
+    config = load_config(Path(__file__).parents[1] / "config/base.yml")
+    config["assets"] = {"OIL": {"column": "oil"}}
+    errors = audit_source_tables(sources, config)
     assert any("OIL/oil has insufficient monthly frequency" in error for error in errors)
     assert any("domestic macro loan has insufficient monthly history" in error for error in errors)
 

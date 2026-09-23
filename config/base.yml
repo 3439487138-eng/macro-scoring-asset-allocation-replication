@@ -1,101 +1,102 @@
 project:
   name: "资产配置宏观打分策略"
-  mode: strict_reproduction
+  mode: practical_adaptation
   license_status: pending_owner_confirmation
-  sample_start: "2008-01-01"
-  sample_end: "2024-12-31"
+  sample_start: "2018-01-31"
+  sample_end: "2026-08-31"
   return_frequency: monthly
-  initial_window_months: 36
   signal_lag_months: 1
-  transaction_cost_bps: 0.0
-  benchmark: null
+  transaction_cost_bps: 10.0
+  risk_free_rate: 0.0
+  max_gross_exposure: 1.0
+  benchmark: static_same_asset_mix
 
 data:
-  provider: local_snapshot
-  root_env: MACRO_STRATEGY_DATA_DIR
-  license_status: unconfirmed
-  files:
-    asset_levels: "China Rolled Return.csv"
-    china_equity_level: "China Rolled Return2.csv"
-    domestic_macro: "china-data.csv"
-    global_macro: "data_indicator_review.csv"
-  date_fields:
-    asset_levels: date
-    china_equity_level: date
-    domestic_macro: release_date
-    global_macro: release_date
+  provider: yahoo_chart_runtime
+  base_url: "https://query1.finance.yahoo.com/v8/finance/chart"
+  download_start: "2013-01-01"
+  as_of_date: "2026-08-31"
+  cache_directory: "data/processed"
+  timeout_seconds: 60
+  max_attempts: 4
+  license_status: runtime_access_only_no_raw_redistribution
+  adjusted_close_note: "Adjusted close is used as a total-return approximation."
 
 assets:
   CH_EQUITY:
-    column: CSI800
-    return_semantics: price_level
+    symbol: ASHR
+    name: "Xtrackers Harvest CSI 300 China A-Shares ETF"
+    role: "CSI 800 practical proxy"
+    return_semantics: adjusted_close_total_return_proxy
   CH_BOND:
-    column: 1Oyear_bond
-    return_semantics: yield_level
+    symbol: CBON
+    name: "VanEck China Bond ETF"
+    role: "China government/policy bond practical proxy"
+    return_semantics: adjusted_close_total_return_proxy
   US_EQUITY:
-    column: PPP500
-    return_semantics: price_level
+    symbol: SPY
+    name: "SPDR S&P 500 ETF Trust"
+    role: "US equity"
+    return_semantics: adjusted_close_total_return_proxy
   GOLD:
-    column: SGE_gold
-    return_semantics: price_level
+    symbol: GLD
+    name: "SPDR Gold Shares"
+    role: "gold"
+    return_semantics: adjusted_close_total_return_proxy
   OIL:
-    column: oil
-    return_semantics: price_level
-  SHORT_BOND:
-    column: short_financing
-    return_semantics: price_level
+    symbol: USO
+    name: "United States Oil Fund"
+    role: "crude-oil futures practical proxy"
+    return_semantics: adjusted_close_total_return_proxy
+  CREDIT:
+    symbol: VCSH
+    name: "Vanguard Short-Term Corporate Bond ETF"
+    role: "short-financing / short-duration investment-grade credit proxy"
+    return_semantics: adjusted_close_total_return_proxy
 
-factors:
-  domestic_economy:
-    indicators: [china_non-industrial_PMI, china_industrial_PMI, loan, property_index]
-    level_indicators: [china_non-industrial_PMI, china_industrial_PMI]
-    yoy_indicators: [loan, property_index]
-    smoothing_window: 12
-  domestic_currency:
-    indicators: [china_1Ybond, china_indicator_reserve-ration, china_market-operations]
-    change_periods: 12
-    smoothing_window: 3
-    signal_smoothing_window: 6
-  domestic_credit:
-    indicators: [china_medium_long-term_loans]
-    rolling_sum_months: 12
-    yoy_periods: 12
-  domestic_expectation:
-    indicators: [china_expectation_of_trade]
-    ewm_halflife: 3
-    neutral_range: 5
-  domestic_inflation:
-    indicators: [china_inflation_PMI]
-    threshold_window: 36
-  domestic_fx:
-    indicators: [china_CN]
-    momentum_months: 3
-    internal_lag_months: 1
-    lag_review_status: unresolved
-  global_economy:
-    indicators: [usa_pmi, china_pmi_new_export_orders, korea_exports, copper_lme, gold]
-    smoothing_window: 12
-  global_currency:
-    indicators: [treasury_yld_1y, fed_securities_bs]
-    yield_smoothing_window: 3
-    rate_threshold: 0.03
-    low_yield_threshold: 0.5
-    holdings_change_threshold: 30
-  global_inflation:
-    indicators: [us_10y_breakeven_inflation]
-    hp_lambda: 129600
-    z_threshold: 1
-  dollar_cycle:
-    indicators: [dollar_index_dxy]
-    hp_lambda: 129600
-    z_threshold: 1
-  global_financial_risk:
-    indicators: [ofr_fsi]
-    ewm_halflife: 36
-    z_threshold: 1
-  autoregression:
-    lags: 12
-    initial_window: 36
+cash:
+  symbol: BIL
+  name: "SPDR Bloomberg 1-3 Month T-Bill ETF"
+  role: "explicit residual cash proxy"
+
+macro_proxies:
+  CNY:
+    symbol: "CNY=X"
+    role: "CNY per USD market close"
+  COPPER:
+    symbol: "HG=F"
+    role: "COMEX copper futures"
+  GOLD_FUTURE:
+    symbol: "GC=F"
+    role: "COMEX gold futures"
+  DOLLAR:
+    symbol: "DX-Y.NYB"
+    role: "US Dollar Index"
+  VIX:
+    symbol: "^VIX"
+    role: "equity volatility risk"
+  LONG_TREASURY:
+    symbol: TLT
+    role: "long-duration US Treasury total-return proxy"
+
+factor_model:
+  winsor_window_months: 60
+  min_history_months: 24
+  lower_quantile: 0.05
+  upper_quantile: 0.95
+  domestic_economy_momentum_months: 6
+  domestic_currency_momentum_months: 3
+  domestic_credit_momentum_months: 6
+  domestic_expectation_momentum_months: 3
+  domestic_inflation_momentum_months: 6
+  global_economy_momentum_months: 6
+  global_currency_momentum_months: 3
+  global_inflation_momentum_months: 6
+  dollar_cycle_momentum_months: 6
+  autoregression_lags: 12
+  autoregression_initial_window: 36
+  fx_internal_lag_months: 0
+  execution_lag_months: 1
 
 factor_weights:
   CH_EQUITY:
@@ -153,7 +154,7 @@ factor_weights:
     dollar_cycle_signal: -1
     fin_risk_signal: -1
     ar_signal: 0
-  SHORT_BOND:
+  CREDIT:
     dom_econ_signal: 0
     dom_curncy_signal: -1
     dom_credit_signal: 0
@@ -165,8 +166,6 @@ factor_weights:
     fin_risk_signal: 0
     ar_signal: 0
 
-# Preserved exactly from the notebook. CREDIT is intentionally unresolved and
-# must not be silently treated as SHORT_BOND or cash.
 portfolio_weights:
   CH_EQUITY: 0.10
   CH_BOND: 0.40
@@ -178,12 +177,18 @@ portfolio_weights:
 outputs:
   directory: outputs
   approved_files:
+    - performance_metrics.csv
+    - monthly_returns.csv
+    - nav_curve.csv
+    - allocation_weights.csv
+    - asset_returns.csv
+    - macro_scores.csv
+    - rebalance_records.csv
+    - duplicate_records.csv
+    - input_manifest.json
+    - backtest_report.md
     - report.json
     - report.html
-    - metrics.csv
-    - nav.csv
-    - positions.csv
-    - factor_signals.csv
-    - run_manifest.json
-    - equity_curve.png
-
+    - figures/nav_curve.png
+    - figures/drawdown_curve.png
+    - figures/allocation_weights.png

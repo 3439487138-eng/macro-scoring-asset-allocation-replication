@@ -1,8 +1,7 @@
-"""Configuration loading and repository-relative path resolution."""
+"""Configuration loading and strict practical-adaptation validation."""
 
 from __future__ import annotations
 
-import os
 from pathlib import Path
 from typing import Any
 
@@ -11,12 +10,14 @@ import yaml
 from .errors import ConfigurationError
 
 
-PROHIBITED_PROVIDERS = {"mock", "random", "demo", "synthetic", "fallback"}
+PROHIBITED_MARKERS = {"mock", "random", "demo", "synthetic", "placeholder", "fallback"}
 REQUIRED_TOP_LEVEL = {
     "project",
     "data",
     "assets",
-    "factors",
+    "cash",
+    "macro_proxies",
+    "factor_model",
     "factor_weights",
     "portfolio_weights",
     "outputs",
@@ -27,7 +28,7 @@ def load_config(path: Path) -> dict[str, Any]:
     try:
         payload = yaml.safe_load(path.read_text(encoding="utf-8"))
     except FileNotFoundError as exc:
-        raise ConfigurationError(f"configuration file not found: {path}") from exc
+        raise ConfigurationError(f"configuration file not found: {path.name}") from exc
     except yaml.YAMLError as exc:
         raise ConfigurationError(f"configuration is not valid YAML: {path.name}") from exc
     if not isinstance(payload, dict):
@@ -39,74 +40,73 @@ def validate_structure(config: dict[str, Any]) -> list[str]:
     errors: list[str] = []
     missing = sorted(REQUIRED_TOP_LEVEL - set(config))
     if missing:
-        errors.append(f"missing top-level sections: {', '.join(missing)}")
+        return [f"missing top-level sections: {', '.join(missing)}"]
 
-    provider = str(config.get("data", {}).get("provider", "")).lower()
-    if not provider:
-        errors.append("data.provider is required")
-    if any(token in provider for token in PROHIBITED_PROVIDERS):
-        errors.append(f"prohibited production data provider: {provider}")
+    project = config["project"]
+    data = config["data"]
+    if project.get("mode") != "practical_adaptation":
+        errors.append("project.mode must explicitly be practical_adaptation")
+    if int(project.get("signal_lag_months", -1)) != 1:
+        errors.append("signal_lag_months must equal one")
+    if float(project.get("transaction_cost_bps", -1)) < 0:
+        errors.append("transaction_cost_bps must be non-negative")
+    if data.get("provider") != "yahoo_chart_runtime":
+        errors.append("only the declared yahoo_chart_runtime provider is allowed")
+    provider_text = " ".join(str(value).lower() for value in data.values())
+    if any(marker in provider_text for marker in PROHIBITED_MARKERS):
+        errors.append("production data configuration contains a prohibited marker")
 
-    files = config.get("data", {}).get("files", {})
-    for key, value in files.items():
-        candidate = Path(str(value))
-        if candidate.is_absolute() or ".." in candidate.parts:
-            errors.append(f"data.files.{key} must be a repository-relative filename")
-        lowered = candidate.as_posix().lower()
-        if any(token in lowered for token in PROHIBITED_PROVIDERS):
-            errors.append(f"data.files.{key} contains a prohibited production marker")
+    asset_keys = set(config["assets"])
+    weight_keys = set(config["portfolio_weights"])
+    factor_keys = set(config["factor_weights"])
+    if asset_keys != weight_keys or asset_keys != factor_keys:
+        errors.append(
+            "asset, portfolio-weight and factor-weight keys must match exactly "
+            f"(assets={sorted(asset_keys)}, portfolio={sorted(weight_keys)}, factors={sorted(factor_keys)})"
+        )
+    if "SHORT_BOND" in asset_keys:
+        errors.append("SHORT_BOND must not be silently aliased; the practical sleeve is CREDIT")
+    if "CREDIT" not in asset_keys:
+        errors.append("CREDIT practical-adaptation sleeve is required")
 
-    if config.get("project", {}).get("signal_lag_months") != 1:
-        errors.append("the preserved strategy requires signal_lag_months=1")
+    symbols = [str(item.get("symbol", "")).strip() for item in config["assets"].values()]
+    symbols += [str(config["cash"].get("symbol", "")).strip()]
+    symbols += [str(item.get("symbol", "")).strip() for item in config["macro_proxies"].values()]
+    if not all(symbols):
+        errors.append("every asset, cash and macro proxy requires a symbol")
+    if any(any(marker in symbol.lower() for marker in PROHIBITED_MARKERS) for symbol in symbols):
+        errors.append("production symbol contains a prohibited marker")
 
-    approved = config.get("outputs", {}).get("approved_files", [])
+    weights = {key: float(value) for key, value in config["portfolio_weights"].items()}
+    if abs(sum(weights.values()) - 1.0) > 1e-12:
+        errors.append("portfolio weights must sum to one")
+    if any(value < 0 for value in weights.values()):
+        errors.append("base portfolio weights must be non-negative")
+
+    model = config["factor_model"]
+    if int(model.get("fx_internal_lag_months", -1)) != 0:
+        errors.append("FX internal lag must be zero; execution lag is applied once at portfolio level")
+    if int(model.get("execution_lag_months", -1)) != 1:
+        errors.append("factor_model.execution_lag_months must equal one")
+
+    output_dir = Path(str(config["outputs"].get("directory", "")))
+    if output_dir.is_absolute() or ".." in output_dir.parts:
+        errors.append("outputs.directory must be repository-relative")
+    approved = [Path(str(item)) for item in config["outputs"].get("approved_files", [])]
     if not approved or len(approved) != len(set(approved)):
         errors.append("outputs.approved_files must be a non-empty unique list")
-    for name in approved:
-        if Path(str(name)).is_absolute() or len(Path(str(name)).parts) != 1:
-            errors.append(f"approved output must be a plain filename: {name}")
+    for item in approved:
+        if item.is_absolute() or ".." in item.parts:
+            errors.append(f"approved output is not repository-relative: {item.as_posix()}")
     return errors
 
 
-def runtime_configuration_errors(config: dict[str, Any]) -> list[str]:
+def require_valid_config(config: dict[str, Any]) -> None:
     errors = validate_structure(config)
-    asset_keys = set(config.get("assets", {}))
-    portfolio_keys = set(config.get("portfolio_weights", {}))
-    if asset_keys != portfolio_keys:
-        missing_returns = sorted(portfolio_keys - asset_keys)
-        unused_returns = sorted(asset_keys - portfolio_keys)
-        detail = []
-        if missing_returns:
-            detail.append("weights without return assets=" + ",".join(missing_returns))
-        if unused_returns:
-            detail.append("return assets without weights=" + ",".join(unused_returns))
-        errors.append("portfolio/return asset keys differ (" + "; ".join(detail) + ")")
-
-    for asset, spec in config.get("assets", {}).items():
-        if spec.get("return_semantics") == "yield_level":
-            errors.append(
-                f"{asset} is declared as a yield level and cannot be treated as total return"
-            )
-
-    fx = config.get("factors", {}).get("domestic_fx", {})
-    if fx.get("internal_lag_months", 0) and fx.get("lag_review_status") != "confirmed":
-        errors.append(
-            "domestic FX has an internal lag plus the portfolio lag; lag review is unresolved"
-        )
-    return errors
+    if errors:
+        raise ConfigurationError("; ".join(errors))
 
 
-def resolve_data_root(config: dict[str, Any], project_root: Path) -> Path:
-    env_name = config.get("data", {}).get("root_env", "MACRO_STRATEGY_DATA_DIR")
-    override = os.environ.get(str(env_name), "").strip()
-    return Path(override).expanduser().resolve() if override else project_root.resolve()
-
-
-def resolve_input_paths(
-    config: dict[str, Any], project_root: Path
-) -> dict[str, Path]:
-    data_root = resolve_data_root(config, project_root)
-    return {
-        key: (data_root / str(relative)).resolve()
-        for key, relative in config["data"]["files"].items()
-    }
+def output_paths(config: dict[str, Any], project_root: Path) -> list[Path]:
+    root = (project_root / str(config["outputs"]["directory"])).resolve()
+    return [(root / str(relative)).resolve() for relative in config["outputs"]["approved_files"]]
