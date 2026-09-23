@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from typing import Any
 
 import yaml
@@ -22,6 +22,11 @@ REQUIRED_TOP_LEVEL = {
     "portfolio_weights",
     "outputs",
 }
+
+
+def _unsafe_relative_path(value: str) -> bool:
+    candidate = Path(value)
+    return candidate.is_absolute() or PureWindowsPath(value).is_absolute() or ".." in candidate.parts
 
 
 def load_config(path: Path) -> dict[str, Any]:
@@ -90,13 +95,13 @@ def validate_structure(config: dict[str, Any]) -> list[str]:
         errors.append("factor_model.execution_lag_months must equal one")
 
     output_dir = Path(str(config["outputs"].get("directory", "")))
-    if output_dir.is_absolute() or ".." in output_dir.parts:
+    if _unsafe_relative_path(str(output_dir)):
         errors.append("outputs.directory must be repository-relative")
     approved = [Path(str(item)) for item in config["outputs"].get("approved_files", [])]
     if not approved or len(approved) != len(set(approved)):
         errors.append("outputs.approved_files must be a non-empty unique list")
     for item in approved:
-        if item.is_absolute() or ".." in item.parts:
+        if _unsafe_relative_path(str(item)):
             errors.append(f"approved output is not repository-relative: {item.as_posix()}")
     return errors
 
